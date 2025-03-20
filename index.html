@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Wizardry AI</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .neubrutalism {
+            border: 3px solid black;
+            box-shadow: 5px 5px 0px 0px rgba(0,0,0,1);
+            transition: all 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 7px 7px 0px 0px rgba(0,0,0,1);
+        }
+        .transform-btn {
+            background: #4ade80;
+            transition: all 0.2s ease;
+        }
+        .transform-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 1px 1px 0px 0px rgba(0,0,0,1) !important;
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .format-btn.active {
+            background-color: #fca5a5;
+            transform: translate(2px, 2px);
+            box-shadow: 3px 3px 0px 0px rgba(0,0,0,1);
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1em;
+            padding-right: 2rem;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #4ade80;
+            color: black;
+            border: 3px solid black;
+            box-shadow: 5px 5px 0px 0px rgba(0,0,0,1);
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 min-h-screen">
+    <div id="app" class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6 p-4 bg-yellow-300 neubrutalism">
+            <h1 class="text-2xl font-bold">Content Wizardry AI ✨</h1>
+            <div class="space-x-2">
+                <button @click="saveContent" class="px-4 py-2 bg-blue-200 neubrutalism hover:bg-blue-300 hover-lift">Save</button>
+                <button @click="exportContent" class="px-4 py-2 bg-purple-200 neubrutalism hover:bg-purple-300 hover-lift">Export</button>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="space-y-6">
+            <div class="p-6 bg-white neubrutalism">
+                <div class="mb-4">
+                    <label class="block mb-2 font-bold">Input Content</label>
+                    <textarea v-model="content" placeholder="Enter your original content here that you want to transform..." class="w-full h-40 p-3 neubrutalism resize-none focus:outline-none"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block mb-2 font-bold">Content Tone</label>
+                    <div class="p-3 bg-blue-100 neubrutalism relative">
+                        <select v-model="tone" class="w-full bg-transparent outline-none">
+                            <option value="casual">Casual & Friendly</option>
+                            <option value="professional">Professional</option>
+                            <option value="humorous">Humorous</option>
+                            <option value="formal">Formal</option>
+                            <option value="inspirational">Inspirational</option>
+                            <option value="educational">Educational</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block mb-2 font-bold">Content Length</label>
+                    <div class="p-3 bg-green-100 neubrutalism relative">
+                        <select v-model="length" class="w-full bg-transparent outline-none">
+                            <option value="short">Short (Social Media)</option>
+                            <option value="medium">Medium (Blog Post)</option>
+                            <option value="long">Long (Article)</option>
+                            <option value="very_short">Very Short (Tweet)</option>
+                            <option value="snippet">Snippet (Caption)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block mb-2 font-bold">Language</label>
+                    <div class="p-3 bg-yellow-100 neubrutalism relative">
+                        <select v-model="language" class="w-full bg-transparent outline-none">
+                            <option value="english">🇬🇧 English</option>
+                            <option value="spanish">🇪🇸 Spanish</option>
+                            <option value="french">🇫🇷 French</option>
+                            <option value="german">🇩🇪 German</option>
+                            <option value="italian">🇮🇹 Italian</option>
+                            <option value="portuguese">🇵🇹 Portuguese</option>
+                            <option value="japanese">🇯🇵 Japanese</option>
+                            <option value="chinese">🇨🇳 Chinese</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="transformContent" class="w-full p-4 text-center font-bold transform-btn neubrutalism text-lg">
+                Transform Content ✨
+            </button>
+
+            <div class="p-6 bg-white neubrutalism">
+                <h2 class="font-bold mb-4 text-lg">Select Output Formats</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <button @click="toggleFormat('instagram')" :class="{'active': selectedFormats.includes('instagram')}" class="p-4 bg-pink-100 neubrutalism hover:bg-pink-200 hover-lift format-btn flex items-center justify-center gap-2">
+                        <i class="bi bi-instagram text-lg"></i> Instagram
+                    </button>
+                    <button @click="toggleFormat('linkedin')" :class="{'active': selectedFormats.includes('linkedin')}" class="p-4 bg-blue-100 neubrutalism hover:bg-blue-200 hover-lift format-btn flex items-center justify-center gap-2">
+                        <i class="bi bi-linkedin text-lg"></i> LinkedIn
+                    </button>
+                    <button @click="toggleFormat('twitter')" :class="{'active': selectedFormats.includes('twitter')}" class="p-4 bg-gray-100 neubrutalism hover:bg-gray-200 hover-lift format-btn flex items-center justify-center gap-2">
+                        <i class="bi bi-twitter-x text-lg"></i> Twitter/X
+                    </button>
+                    <button @click="toggleFormat('youtube')" :class="{'active': selectedFormats.includes('youtube')}" class="p-4 bg-red-100 neubrutalism hover:bg-red-200 hover-lift format-btn flex items-center justify-center gap-2">
+                        <i class="bi bi-youtube text-lg"></i> YouTube
+                    </button>
+                    <button @click="toggleFormat('blog')" :class="{'active': selectedFormats.includes('blog')}" class="p-4 bg-green-100 neubrutalism hover:bg-green-200 hover-lift format-btn flex items-center justify-center gap-2">
+                        <i class="bi bi-file-text text-lg"></i> Blog Post
+                    </button>
+                    <button @click="toggleFormat('newsletter')" :class="{'active': selectedFormats.includes('newsletter')}" class="p-4 bg-purple-100 neubrutalism hover:bg-purple-200 hover-lift format-btn flex items-center justify-center gap-2">
+                        <i class="bi bi-envelope text-lg"></i> Newsletter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results section -->
+            <div v-if="transformedContent" class="p-6 bg-white neubrutalism">
+                <h2 class="font-bold mb-4 text-lg">Transformed Content</h2>
+                <div v-for="(content, format) in transformedContent" :key="format" class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold capitalize">{{ formatDisplayName(format) }}</h3>
+                        <button @click="copyToClipboard(content)" class="px-3 py-1 bg-blue-100 neubrutalism hover:bg-blue-200 text-sm">
+                            <i class="bi bi-clipboard"></i> Copy
+                        </button>
+                    </div>
+                    <div class="p-4 bg-gray-50 neubrutalism">
+                        <p style="white-space: pre-wrap;">{{ content }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div v-if="isLoading" class="loading">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-32 w-32 border-b-4 border-gray-900"></div>
+                <p class="mt-4 font-bold">Transforming your content...</p>
+                <p class="text-gray-600 mt-2">Creating magic takes a moment ✨</p>
+            </div>
+        </div>
+
+        <!-- Toast notification -->
+        <div ref="toast" class="toast">
+            <span v-text="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    content: '',
+                    tone: 'casual',
+                    length: 'short',
+                    language: 'english',
+                    isLoading: false,
+                    selectedFormats: [],
+                    transformedContent: null,
+                    toastMessage: '',
+                    examples: {
+                        instagram: {
+                            casual: "Hey friends! 👋 Just tried this amazing new coffee spot downtown and I'm OBSESSED! ☕️ The latte art was next level and don't even get me started on their pastries! 🥐✨\n\nWhat's your favorite coffee order? Let me know below! 👇\n\n#CoffeeAddict #LatteArt #CafeHopping #FoodieFriday",
+                            professional: "Exploring innovative coffee brewing methods at @coffeeinnovators workshop today. Their approach to sustainability in coffee production is truly inspiring for all industry professionals.\n\nLooking forward to implementing these practices in our upcoming projects.\n\n#CoffeeIndustry #SustainableBusiness #ProfessionalDevelopment",
+                            humorous: "Day 5 without coffee: I've developed the ability to hear colors and see sounds. Send help... or better yet, send caffeine! ☕️😂\n\n#CoffeeWithdrawal #MondayMood #HelpMePlease #CoffeeAddict"
+                        },
+                        linkedin: {
+                            casual: "Really enjoyed the marketing conference this week! Met so many talented professionals and learned about emerging trends in digital strategy. Looking forward to applying these insights to our upcoming campaigns.\n\nWhat industry events have you attended recently that made an impact? I'd love to hear your experiences!",
+                            professional: "I'm pleased to announce the successful completion of our Q3 strategic initiative, which resulted in a 27% increase in client engagement and a 15% reduction in acquisition costs.\n\nThis outcome demonstrates the effectiveness of our integrated approach to digital transformation and data-driven decision making.\n\nI extend my sincere appreciation to our dedicated team for their exceptional work and collaborative spirit throughout this project.\n\nWould you be interested in learning more about our methodologies? Please feel free to connect.",
+                            humorous: "Just survived another meeting that could've been an email! My superpower: looking attentive while mentally organizing my grocery list. 😂\n\nOn a serious note, today's discussion on project management efficiency did highlight some valuable points about streamlining our communication processes.\n\nWho else is mastering the art of corporate survival with a smile? Share your tips below!"
+                        },
+                        twitter: {
+                            casual: "Just watched the sunset at the beach - nothing beats those perfect orange and purple skies! What's your favorite time of day? #SunsetVibes",
+                            professional: "Our latest research paper on renewable energy implementation in urban environments has been published today. Access the full study via the link below. #RenewableEnergy #Sustainability",
+                            humorous: "My fitness plan for today: 1. Pick up remote 2. Lift to change channel 3. Repeat as necessary 😂 #FitnessGoals #LazySunday"
+                        },
+                        youtube: {
+                            casual: "Hey everyone! Today I'm sharing my summer skincare routine that has totally changed my skin! I've found some amazing affordable products that work just as well as the expensive ones.\n\nTIMESTAMPS:\n0:00 Intro\n1:23 Morning Routine\n5:45 Evening Routine\n8:32 Weekly Treatments\n12:04 My Holy Grail Products\n\nDon't forget to like and subscribe for more beauty content every week!",
+                            professional: "In this comprehensive tutorial, we analyze the fundamental principles of effective data visualization for business intelligence applications.\n\nTIMESTAMPS:\n00:00 Introduction\n02:17 Data Visualization Fundamentals\n08:45 Tool Selection Criteria\n15:33 Case Study: Financial Dashboard\n23:56 Implementation Best Practices\n31:12 Performance Optimization\n38:27 Conclusion\n\nAdditional resources and reference materials are available in the description below.",
+                            humorous: "ULTIMATE COOKING FAILS COMPILATION | When Amateur Chefs Attack\n\nWatch as I attempt to follow professional recipes and create culinary disasters instead! From burning toast to exploding pasta sauce, this video has it all!\n\nTIMESTAMPS:\n0:00 Intro to my kitchen nightmares\n1:23 The Pancake Ceiling Incident\n3:45 When I Set Water On Fire\n7:12 Baking Bread (Or Creating Concrete)\n10:38 The Thanksgiving Turkey Saga\n\nSubscribe for more kitchen chaos every Tuesday! 🍳🔥😂"
+                        },
+                        blog: {
+                            casual: "# My Summer Road Trip Adventure\n\nHey there! I just got back from the most AMAZING two-week road trip down the Pacific Coast Highway, and I'm still buzzing from all the incredible experiences. I thought I'd share some highlights and tips in case you're planning your own adventure!\n\n## The Planning Phase\n\nFirst things first - planning for a road trip doesn't have to be complicated. We kept it simple by:\n- Booking accommodations for just the first and last few nights\n- Identifying a few must-see spots\n- Leaving plenty of room for spontaneous detours\n\n## Highlights Along the Way\n\nThe coastal views were absolutely breathtaking! We stopped at so many viewpoints that it probably added hours to our driving time, but it was 100% worth it.\n\nSome unexpected favorites:\n- This tiny coffee shop in Carmel that had the BEST homemade pastries\n- A sunset hike near Big Sur that wasn't even in our guidebook\n- An impromptu wine tasting at a family-owned vineyard\n\n## Lessons Learned\n\nNext time, I would definitely pack fewer clothes and more snacks! Also, downloading offline maps saved us when we lost cell service in some of the more remote coastal areas.\n\nHave you done a similar trip? I'd love to hear about your experiences in the comments!",
+                            professional: "# Strategic Implementation of AI in Healthcare Systems: A Framework for Institutional Integration\n\n## Executive Summary\n\nArtificial Intelligence (AI) presents unprecedented opportunities to transform healthcare delivery, operational efficiency, and patient outcomes. This article presents a structured framework for healthcare institutions to evaluate, implement, and scale AI technologies while navigating regulatory requirements and ethical considerations.\n\n## Current State Analysis\n\nThe healthcare industry stands at an inflection point regarding AI adoption. Recent studies indicate that while 67% of healthcare executives acknowledge AI's strategic importance, only 23% have moved beyond pilot implementations to full-scale deployment.\n\nKey barriers to adoption include:\n\n- Integration complexities with legacy systems\n- Data standardization challenges\n- Regulatory uncertainty\n- Specialized expertise requirements\n- Return on investment validation\n\n## Framework Components\n\n### 1. Strategic Assessment\n\nInstitutions must conduct a comprehensive evaluation of their technological readiness, aligning potential AI implementations with organizational objectives and clinical priorities.\n\n### 2. Governance Structure\n\nEstablishing a cross-functional AI governance committee ensures appropriate oversight across technical, clinical, ethical, and operational domains.\n\n### 3. Data Infrastructure Preparation\n\nSuccessful AI implementation requires robust data management practices, including standardization protocols and quality assurance mechanisms.\n\n## Implementation Methodology\n\nOur recommended phased approach prioritizes high-impact, lower-complexity use cases for initial implementation while building organizational capabilities for more advanced applications.\n\n## Conclusion\n\nThe strategic integration of AI technologies in healthcare requires deliberate planning and cross-functional collaboration. By following this framework, institutions can maximize the value of their AI investments while mitigating associated risks.\n\n## References\n\n[List of academic and industry sources]",
+                            humorous: "# I Tried to Become a Morning Person for a Week and Nearly Lost My Soul\n\n## The Grand Plan\n\nIt started innocently enough. After scrolling through Instagram at 1 AM and seeing all those \"5 AM Club\" posts with people doing yoga as the sun rises, I thought: \"That could be me!\" Narrator: It could not, in fact, be her.\n\n## Day 1: The Delusion\n\nMy alarm went off at 5 AM, and I sprang out of bed! Just kidding. I hit snooze seven times before remembering my new \"morning person\" identity. I finally dragged myself to the kitchen, where I stared at my coffee maker for approximately 3 minutes before remembering you have to actually put coffee in it.\n\nAccomplishments:\n- Didn't go back to bed\n- Successfully operated a toaster\n- Watched the sunrise (through my kitchen window while contemplating my life choices)\n\n## Day 2: The Struggle Gets Real\n\nWoke up at 5:03 AM feeling like I'd been hit by a truck. Decided to go for a \"refreshing morning jog\" as all the morning people blogs suggested. Made it to the end of my driveway before turning around because I forgot to put on actual shoes.\n\n## Day 3: The Bargaining\n\nMy internal dialogue at 5 AM: \"Maybe I can just be a 7 AM person? That's still morningish, right?\"\n\nI did manage to meditate for 10 minutes, though by \"meditate\" I mean I sat cross-legged on my floor and made a mental grocery list while occasionally remembering to breathe.\n\n## Day 4: The Delirium\n\nSomehow showed up to a Zoom meeting with my shirt on backwards. Referred to my boss as \"dude\" and couldn't remember the word \"spreadsheet\" so called it \"the number rectangle thing.\"\n\n## Day 7: The Acceptance\n\nI have accepted that my natural habitat is evening productivity with a side of night owl tendencies. Some people are meant to conquer the sunrise, and some are meant to finally get their best ideas at 10 PM while eating cereal straight from the box.\n\n## The Takeaway\n\nNot all productivity advice is one-size-fits-all. Find your own rhythm and embrace it! Also, coffee should be available via IV drip for anyone attempting this experiment.\n\nWho else has tried to change their natural sleep patterns and lived to tell the tale? Share your horror stories in the comments!"
+                        },
+                        newsletter: {
+                            casual: "Subject: What's New This Month - Coffee, Books & Summer Vibes! ☀️\n\nHey there friend!\n\nI hope this newsletter finds you enjoying these beautiful summer days! This month has been packed with adventures, discoveries, and lots of iced coffee (because, hello heatwave!).\n\nHERE'S WHAT I'VE BEEN LOVING THIS MONTH:\n\n📚 BOOK OF THE MONTH: \"The Midnight Library\" by Matt Haig - I literally couldn't put it down! It's all about the infinite possibilities our lives could take, and it really made me think about the choices we make every day.\n\n☕ COFFEE SPOT DISCOVERY: Found this adorable little café downtown called Brew & Bloom where they put dried flowers in their ice cubes! Not only Instagram-worthy but also delicious!\n\n🎧 PLAYLIST OBSESSION: My \"Summer Sunset Vibes\" playlist has been on repeat - I've shared the link below if you need some good tunes for your next beach day!\n\nCOMING UP NEXT MONTH:\n- I'll be sharing my easy meal prep routine that's saved me HOURS\n- A breakdown of my minimal summer skincare routine\n- Some thoughts on digital decluttering (because my phone needs help!)\n\nBefore I go - I'd love to know what YOU'VE been enjoying this summer! Hit reply and let me know, I always love hearing from you!\n\nStay cool out there!\n\nSarah\n\nP.S. If you know someone who might enjoy this newsletter, feel free to forward it along! ♥",
+                            professional: "Subject: Q2 Industry Insights: Emerging Technologies Transforming Financial Services\n\nDear Valued Client,\n\nI trust this correspondence finds you well. As we conclude the second quarter of the fiscal year, I am pleased to present our analysis of significant industry developments that may impact your strategic planning initiatives.\n\nKEY MARKET INDICATORS:\n\nThe financial technology sector experienced 18.7% growth compared to the previous quarter, with significant investment concentrated in blockchain infrastructure and regulatory technology solutions. Our analysis indicates three primary drivers behind this acceleration:\n\n1. Regulatory Evolution: The implementation of the Financial Services Regulatory Framework has created new compliance requirements while simultaneously opening opportunities for innovation in verification and reporting systems.\n\n2. Institutional Adoption: Major financial institutions have moved beyond exploratory blockchain initiatives to full-scale implementation, particularly in settlement systems and cross-border transactions.\n\n3. Consumer Behavior Shift: Digital banking adoption has increased 27% year-over-year, with significant growth in the 55+ demographic (42% increase).\n\nSTRATEGIC CONSIDERATIONS:\n\nBased on these developments, organizations should evaluate their positioning relative to these trends. Our advisory team has developed a comprehensive assessment framework to help identify potential opportunities and vulnerabilities within your current strategic roadmap.\n\nUPCOMING EVENT:\n\nI would like to extend a personal invitation to our exclusive Executive Roundtable on July 15th, where our Chief Economic Advisor will present detailed projections for the remainder of the fiscal year. Please confirm your attendance at your earliest convenience as capacity is limited.\n\nAs always, I remain available to discuss how these developments may specifically impact your organization's objectives.\n\nBest regards,\n\nJonathan Williams\nSenior Market Strategist\n\nThis communication contains confidential information and is intended only for the recipient. If you received this in error, please notify the sender immediately.",
+                            humorous: "Subject: This Newsletter Was Written While Procrastinating Something Important\n\nHello Procrastinators Anonymous Members! 👋\n\nWelcome to this month's newsletter, which I started writing 5 minutes before the deadline while simultaneously watching cat videos and reorganizing my sock drawer.\n\nPROCRASTINATION ACHIEVEMENTS THIS MONTH:\n\n🏆 Cleaned out the refrigerator instead of finishing tax returns\n🏆 Researched \"how long do lobsters live\" at 2 AM before a job interview\n🏆 Organized digital photos chronologically while a deadline whooshed by\n\nSCIENCE CORNER: \"WHY WE DO THIS TO OURSELVES\"\n\nAccording to research that I was going to read thoroughly but instead just skimmed the abstract, procrastination is linked to something important about brain chemistry and not at all because scrolling through social media is more fun than adult responsibilities.\n\nMOTIVATIONAL QUOTE OF THE MONTH:\n\n\"Never put off till tomorrow what you can do the day after tomorrow.\" - Mark Twain (a fellow procrastinator who would have loved smartphones)\n\nPRODUCTIVITY TIP THAT WE'LL ALL READ AND IGNORE:\n\nThe Pomodoro Technique suggests working for 25 minutes, then taking a 5-minute break. Warning: Side effects may include discovering that 5-minute breaks can mysteriously expand into 3-hour YouTube marathons about how cruise ships dispose of their waste.\n\nWHAT'S COMING NEXT MONTH:\n\nProbably another last-minute newsletter! But theoretically:\n- A guide to setting realistic deadlines (written by someone more qualified than me)\n- Success stories from reformed procrastinators (if I get around to interviewing them)\n- A breakdown of productivity apps that we'll download and never open\n\nUntil next time (or whenever I get to it),\n\nYour Fellow Procrastinator-in-Chief\n\nP.S. This newsletter was brought to you by: Deadlines, Panic, and Copious Amounts of Caffeine - the unofficial sponsors of everything I accomplish."
+                        }
+                    }
+                }
+            },
+            methods: {
+                formatDisplayName(format) {
+                    // Convert format name to proper display name with icons
+                    switch(format) {
+                        case 'instagram': return '📱 Instagram';
+                        case 'linkedin': return '💼 LinkedIn';
+                        case 'twitter': return '🐦 Twitter/X';
+                        case 'youtube': return '🎬 YouTube';
+                        case 'blog': return '📝 Blog Post';
+                        case 'newsletter': return '📧 Newsletter';
+                        default: return format.charAt(0).toUpperCase() + format.slice(1);
+                    }
+                },
+                toggleFormat(format) {
+                    if (this.selectedFormats.includes(format)) {
+                        this.selectedFormats = this.selectedFormats.filter(f => f !== format);
+                    } else {
+                        this.selectedFormats.push(format);
+                    }
+                },
+                async transformContent() {
+                    if (!this.content.trim()) {
+                        this.showToast('Please enter some content to transform!');
+                        return;
+                    }
+
+                    if (this.selectedFormats.length === 0) {
+                        this.showToast('Please select at least one output format!');
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    this.transformedContent = null;
+                    
+                    try {
+                        const formatPromises = this.selectedFormats.map(format => 
+                            this.generateFormatContent(format)
+                        );
+                        
+                        const results = await Promise.all(formatPromises);
+                        
+                        // Create object with format as key and content as value
+                        this.transformedContent = results.reduce((obj, result, index) => {
+                            obj[this.selectedFormats[index]] = result;
+                            return obj;
+                        }, {});
+                        
+                        this.showToast('Content transformed successfully! ✨');
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.showToast('An error occurred while transforming the content.');
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+                
+                async generateFormatContent(format) {
+                    try {
+                        // Use AI to generate the content with proper formatting for each platform
+                        let prompt = `Transform this content into a ${this.tone} tone, ${this.length} length, in ${this.language} language, formatted specifically for ${format}.\n\nOriginal content: "${this.content}"\n\n`;
+                        
+                        // Add specific instructions based on the format
+                        switch(format) {
+                            case 'instagram':
+                                prompt += "Format it as an Instagram post. Include relevant hashtags (4-8) and emojis. Make it engaging and visually descriptive. If appropriate, add a call-to-action for comments.";
+                                break;
+                            case 'linkedin':
+                                prompt += "Format it as a LinkedIn post. Keep it professional but engaging. Include 1-2 relevant hashtags at the end if appropriate. Add paragraph breaks for readability. Include a thought-provoking question or call-to-action at the end.";
+                                break;
+                            case 'twitter':
+                                prompt += "Format it as a Twitter/X post. Keep it concise (under 280 characters if 'very_short' or 'snippet' length is selected). Include 1-3 relevant hashtags. Make it punchy and engaging.";
+                                break;
+                            case 'youtube':
+                                prompt += "Format it as a YouTube video description. Include an engaging hook at the beginning. Add TIMESTAMPS in capitals if appropriate for longer content. Include relevant keywords naturally throughout. End with a subscription reminder and call-to-action.";
+                                break;
+                            case 'blog':
+                                prompt += "Format it as a blog post with proper structure. Include a catchy headline (with #), subheadings (with ##), short paragraphs, bullet points where appropriate, and a conclusion. Make it comprehensive but scannable.";
+                                break;
+                            case 'newsletter':
+                                prompt += "Format it as an email newsletter with a subject line at the top (starting with 'Subject:'). Include a personal greeting, clear sections with subheadings in ALL CAPS, and a sign-off. Balance informative content with personality.";
+                                break;
+                        }
+
+                        try {
+                            const response = await fetch('https://r0c8kgwocscg8gsokogwwsw4.zetaverse.one/ai', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': 'Bearer Jin0F6qgqnMy3gwtJ4iKaV66DUu1',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    messages: [
+                                        {
+                                            role: "user",
+                                            content: [
+                                                {
+                                                    type: "text",
+                                                    text: prompt
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                })
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`API error: ${response.status}`);
+                            }
+
+                            const data = await response.json();
+                            if (data.message) {
+                                return data.message;
+                            } else {
+                                throw new Error("Invalid API response format");
+                            }
+                        } catch (error) {
+                            console.error("API call failed:", error);
+                            // Fallback to examples if API fails
+                            return this.getExampleContent(format);
+                        }
+                    } catch (error) {
+                        console.error(`Error generating ${format} content:`, error);
+                        return this.getExampleContent(format);
+                    }
+                },
+                
+                getExampleContent(format) {
+                    // Provide example content as fallback
+                    const toneKey = this.tone in this.examples[format] ? this.tone : 'casual';
+                    return this.examples[format][toneKey];
+                },
+
+                copyToClipboard(text) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => {
+                            this.showToast('Content copied to clipboard!');
+                        })
+                        .catch(err => {
+                            console.error('Could not copy text: ', err);
+                            this.showToast('Failed to copy content.');
+                        });
+                },
+                
+                showToast(message) {
+                    this.toastMessage = message;
+                    const toast = this.$refs.toast;
+                    toast.classList.add('show');
+                    
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                    }, 3000);
+                },
+                
+                saveContent() {
+                    if (!this.transformedContent) {
+                        this.showToast('No content to save. Please transform content first!');
+                        return;
+                    }
+                    
+                    try {
+                        // Create a JSON file for download
+                        const dataStr = JSON.stringify(this.transformedContent, null, 2);
+                        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                        
+                        const exportName = 'transformed-content-' + new Date().toISOString().split('T')[0];
+                        
+                        const linkElement = document.createElement('a');
+                        linkElement.setAttribute('href', dataUri);
+                        linkElement.setAttribute('download', exportName + ".json");
+                        linkElement.click();
+                        
+                        this.showToast('Content saved successfully!');
+                    } catch (error) {
+                        console.error('Error saving content:', error);
+                        this.showToast('Failed to save content.');
+                    }
+                },
+                
+                exportContent() {
+                    if (!this.transformedContent) {
+                        this.showToast('No content to export. Please transform content first!');
+                        return;
+                    }
+                    
+                    try {
+                        // Create a text file with all transformed content
+                        let textContent = "CONTENT WIZARDRY AI - EXPORTED CONTENT\n";
+                        textContent += "Generated on: " + new Date().toLocaleString() + "\n\n";
+                        
+                        for (const [format, content] of Object.entries(this.transformedContent)) {
+                            textContent += "==== " + this.formatDisplayName(format).toUpperCase() + " ====\n\n";
+                            textContent += content + "\n\n";
+                        }
+                        
+                        const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(textContent);
+                        
+                        const exportName = 'exported-content-' + new Date().toISOString().split('T')[0];
+                        
+                        const linkElement = document.createElement('a');
+                        linkElement.setAttribute('href', dataUri);
+                        linkElement.setAttribute('download', exportName + ".txt");
+                        linkElement.click();
+                        
+                        this.showToast('Content exported successfully!');
+                    } catch (error) {
+                        console.error('Error exporting content:', error);
+                        this.showToast('Failed to export content.');
+                    }
+                }
+            }
+        }).mount('#app')
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
